@@ -1,12 +1,13 @@
-# radmc3d_opacity_modeling
+radmc3d_opacity_modeling
+
 For making DSHARP composition, dsharp_opac package is prerequisit.
 You can install this package with:
 pip install dsharp_opac
 
 After installing the package, please modify the model parameters in create_radmc3d_inputfile.py
-# ==========================================================================
-#   parameter setup
-# ==========================================================================
+==========================================================================
+   parameter setup
+==========================================================================
 logawidth    = None          # Smear out the grain size by 5% in both directions
 wfact        = 3.0           # Grid width of na sampling points in units of logawidth
 chopforward  = 1.          # Remove forward scattering within an angle of 5 degrees

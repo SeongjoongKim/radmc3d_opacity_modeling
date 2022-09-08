@@ -17,10 +17,11 @@ descr        = "DSHARP mixture model"
 extrapolate  = True          # Extrapolate optical constants beyond its wavelength grid, if necessary
 verbose      = False         # If True, then write out status information
 ntheta       = 181           # Number of scattering angle sampling points
-amin = 1e-5; amax = 0.15e-1; na = 200  # Set a_min, a_max in cm unit and number of a grids
-wave_min = 1.0e-4; wave_max = 1e0; nwave = 200   # Set lam_min, lam_max in cm unit and number of lam grids
+amin = 1.0e-4; amax = 1.0e0; na = 200  # Set a_min, a_max in cm unit and number of a grids
+wave_min = 0.1e-2; wave_max = 1e0; nwave = 150   # Set lam_min, lam_max in cm unit and number of lam grids
 errtol       = 0.1           # Tolerance of the relative difference between kscat and the integral over the zscat Z11 element over angle. If this tolerance is exceeded, a warning is given.
-name         = 'DSHARP_amax{:5.1f}um'.format(amax*1e4)  # Output file name
+name         = 'DSHARP_amax{:.1f}um'.format(amax*1e4)  # Output file name
+print('amin = {:4.2e}, amax = {:4.2e}'.format(amin,amax))
 
 # ====================================================================================================
 #   Calculation start
@@ -270,6 +271,7 @@ needs the opacities in a particular form. This subroutine
 writes the opacities out in that form. It will write it to
 the file dustkapscatmat_<name>.inp.
 """
+print('Writing dustkapscatmat_***.inp file')
 filename = 'dustkapscatmat_'+name+'.inp'
 ref = references
 if descr is None: descr=name
@@ -311,6 +313,40 @@ with open(filename,'w+') as f:
                      package['zscat'][i,j,2],package['zscat'][i,j,3],
                      package['zscat'][i,j,4],package['zscat'][i,j,5]))
         f.write('\n')
+
+
+# Write dustkappa_***.inp file =======================================================
+print('Writing dustkappa_***.inp file')
+filename = 'dustkappa_'+name+'.inp'
+ref = references
+if descr is None: descr=name
+with open(filename,'w+') as f:
+    f.write('# Opacity and scattering matrix file for '+descr+'\n')
+    if ref is not None:
+        f.write('# Optical constants from '+ref+'\n')
+    f.write('# Please do not forget to cite in your publications the original paper of these optical constant measurements\n')
+    if(package["references"]!=''):
+        refs = package["references"].split('\n')
+        for r in refs:
+            f.write('# @references = '+r+'\n')
+    f.write('# Made with the makedustopac.py code by Cornelis Dullemond\n')
+    f.write('# using the bhmie.py Mie code of Bohren and Huffman (python version by Cornelis Dullemond, from original bhmie.f code by Bruce Draine)\n')
+    f.write('# Grain size distribution:\n')
+    f.write('# agrain min = %13.6e cm\n'%(package['agraincm'][0]))
+    f.write('# agrain max = %13.6e cm\n'%(package['agraincm'][-1]))
+    f.write('# powerlaw index = %13.6f \n'%(pla))
+    f.write('# na = %13d \n'%(na))
+    f.write('# Material density:\n')
+    f.write('# @density = %13.6f g/cm^3\n'%(package['matdens']))
+    f.write('1\n')  # Format number
+    f.write('%d\n'%(package['lamcm'].size))
+    #f.write('%d\n'%(package['theta'].size))
+    f.write('\n')
+    for i in range(package['lamcm'].size):
+        f.write('%13.6e %13.6e %13.6e\n'%(package['lamcm'][i]*1e4,
+                                                 package['kabs'][i],
+                                                 package['kscat'][i]))
+   
 
 
 '''
